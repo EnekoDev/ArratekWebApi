@@ -22,6 +22,7 @@ class CustomerFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'address' => $this->faker->address(),
+            'phone' => $this->faker->phoneNumber(),
             'manteinance_id' => function () {
                 $ids = Manteinance::pluck('id')->toArray();
                 return fake()->optional()->randomElement($ids);

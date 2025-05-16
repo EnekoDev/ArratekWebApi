@@ -10,7 +10,7 @@ class Customer extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = "customers";
-    protected $fillable = ["name", "address", "maintenance"];
+    protected $fillable = ["name", "address", "phone", "maintenance"];
     protected $hidden = ["created_at", "updated_at"];
 
     public function invoice() {
