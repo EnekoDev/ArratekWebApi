@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
+            $table->text('answer')->nullable();
             $table->date('resolved_on')->nullable();
             $table->timestamps();
         });

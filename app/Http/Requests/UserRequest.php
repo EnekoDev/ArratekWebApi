@@ -22,7 +22,6 @@ class UserRequest extends ApiFormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6'
         ];
@@ -30,9 +29,6 @@ class UserRequest extends ApiFormRequest
 
     public function messages() {
         return [
-            'name.required' => 'El nombre es obligatorio',
-            'name.string' => 'El nombre debe ser una cadena de texto',
-            'name.max' => 'El nombre no puede superar los 255 caracteres',
             'email.required' => 'El email es obligatorio',
             'email.string' => 'El email debe ser una cadena de texto',
             'email.max' => 'El email no puede superar los 255 caracteres',

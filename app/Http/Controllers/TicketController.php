@@ -2,23 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\AdminCheck;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Routing\Controller;
 
 class TicketController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['jwt.auth', AdminCheck::class])->only(['update']);
+    }
     public function index(Request $request)
     {
-        $perPage = (int) $request->query("perPage", 10);
-        $page = (int) $request->query("page", 0);
-        $offset = $page * $perPage;
+        try {
+            $validated = $request->validate([
+                'perPage' => 'integer|min:10|max:100',
+                'page' => 'integer|min:0',
+            ], [
+                'perPage.integer' => 'El valor por pagina debe ser númerico',
+                'perPage.min' => 'El valor por pagina debe ser mínimo 10',
+                'perPage.max' => 'El valor por pagina debe ser máximo 100',
+                'page.integer' => 'La pagina debe ser númerica',
+                'page.min' => 'La pagina debe ser mínimo 0',
+            ]);
 
-        $tickets = Ticket::skip($offset)->take($perPage)->get();
+            $perPage = $validated['perPage'] ?? 10;
+            $page = $validated['page'] ?? 0;
+            $offset = $page * $perPage;
+            $total = (int) Ticket::count("id");
+            $pagination = array("page"=>$page, "perPage"=>$perPage, "total"=>$total);
 
-        return response()->json($tickets, Response::HTTP_OK);
+            $tickets = Ticket::skip($offset)->take($perPage)->get();
+
+            return response()->json(["data" => $tickets, "meta" => $pagination], Response::HTTP_OK);
+        }  catch (ValidationException $err) {
+            return response()->json(["Error de validacion", $err->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 
     public function store(Request $request)
@@ -27,7 +50,7 @@ class TicketController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string|max:2000',
-                'customer_id' => 'required|exists:customer,id'
+                'customer_id' => 'required|exists:customers,id'
             ], [
                 'title.required' => 'El titulo del ticket es obligatorio',
                 'title.string' => 'El titulo del ticket debe ser una cadena de texto',
@@ -54,7 +77,9 @@ class TicketController extends Controller
     public function update(Request $request, Ticket $ticket)
     {
         try {
-            $validated = $request->validated();
+            $validated = $request->validate([
+                'answer' => 'required|string|max:2000'
+            ]);
             $ticket->update($validated);
 
             return response()->json(["Success" => "Ticket actualizado con exito", "Ticket" => $ticket], Response::HTTP_OK);
@@ -69,16 +94,63 @@ class TicketController extends Controller
         return response()->json(["Success" => "Ticket eliminado con exito"]);
     }
 
+    public function newTickets(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'perPage' => 'integer|min:10|max:100',
+                'page' => 'integer|min:0',
+            ], [
+                'perPage.integer' => 'El valor por pagina debe ser númerico',
+                'perPage.min' => 'El valor por pagina debe ser mínimo 10',
+                'perPage.max' => 'El valor por pagina debe ser máximo 100',
+                'page.integer' => 'La pagina debe ser númerica',
+                'page.min' => 'La pagina debe ser mínimo 0',
+            ]);
+
+            $perPage = $validated['perPage'] ?? 10;
+            $page = $validated['page'] ?? 0;
+            $offset = $page * $perPage;
+            $total = (int) Ticket::whereNull('answer')->count("id");
+
+            $tickets = Ticket::whereNull('answer')->skip($offset)->take($perPage)->get();
+            $pagination = array("page"=>$page, "perPage"=>$perPage, "total"=>$total);
+
+            \Log::info('Offset: ' . $offset);
+            \Log::info('Total: ' . $total);
+            \Log::info('Tickets count: ' . $tickets->count());
+
+            return response()->json(["data" => $tickets, "meta" => $pagination], Response::HTTP_OK);
+        } catch (ValidationException $err) {
+            return response()->json(["Error de validacion", $err->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    }
+
     public function customerTickets(Request $request, string $customer_id)
     {
-        $perPage = (int) $request->query("perPage", 10);
-        $page = (int) $request->query("page", 0);
-        $total = (int) Ticket::where('customer_id', $customer_id)->count("id");
-        $offset = $page * $perPage;
+        try {
+            $validated = $request->validate([
+                'perPage' => 'integer|min:10|max:100',
+                'page' => 'integer|min:0',
+            ], [
+                'perPage.integer' => 'El valor por pagina debe ser númerico',
+                'perPage.min' => 'El valor por pagina debe ser mínimo 10',
+                'perPage.max' => 'El valor por pagina debe ser máximo 100',
+                'page.integer' => 'La pagina debe ser númerica',
+                'page.min' => 'La pagina debe ser mínimo 0',
+            ]);
 
-        $tickets = Ticket::where('customer_id', $customer_id)->skip($offset)->take($perPage)->get();
-        $pagination = array("page"=>$page, "perPage"=>$perPage, "total"=>$total);
+            $perPage = $validated['perPage'] ?? 10;
+            $page = $validated['page'] ?? 0;
+            $offset = $page * $perPage;
+            $total = (int) Ticket::where('customer_id', $customer_id)->count("id");
 
-        return response()->json(["data" => $tickets, "meta" => $pagination], Response::HTTP_OK);
+            $tickets = Ticket::where('customer_id', $customer_id)->skip($offset)->take($perPage)->get();
+            $pagination = ["page" => $page, "perPage" => $perPage, "total" => $total];
+
+            return response()->json(["data" => $tickets, "meta" => $pagination], Response::HTTP_OK);
+        } catch (ValidationException $err) {
+            return response()->json(["Error de validacion", $err->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
     }
 }

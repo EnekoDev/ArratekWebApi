@@ -23,6 +23,7 @@ class TicketFactory extends Factory
         return [
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->sentence(12),
+            'answer' => $this->faker->sentence(8),
             'resolved_on' => $this->faker->date('Y-m-d'),
             'customer_id' => function () {
                 return Customer::inRandomOrder()->first()?->id;

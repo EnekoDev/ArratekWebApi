@@ -10,7 +10,7 @@ class Customer extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = "customers";
-    protected $fillable = ["name", "address", "phone", "maintenance"];
+    protected $fillable = ["name", "address", "phone"];
     protected $hidden = ["created_at", "updated_at"];
 
     public function invoice() {
@@ -19,10 +19,6 @@ class Customer extends Model
 
     public function ticket() {
         return $this->hasMany(Ticket::class);
-    }
-
-    public function manteinance() {
-        return $this->belongsTo(Manteinance::class);
     }
 
     public function user() {

@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Customer;
-use App\Models\Manteinance;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,11 +21,7 @@ class CustomerFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'address' => $this->faker->address(),
-            'phone' => $this->faker->phoneNumber(),
-            'manteinance_id' => function () {
-                $ids = Manteinance::pluck('id')->toArray();
-                return fake()->optional()->randomElement($ids);
-            },
+            'phone' => $this->faker->phoneNumber()
         ];
     }
 }

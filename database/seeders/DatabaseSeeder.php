@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use App\Models\Invoice;
-use App\Models\Manteinance;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -16,17 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'eneko@arratek.com',
+            'password' => 'prueba123',
+            'admin' => true
         ]);
 
-        $this->call(ManteinanceSeeder::class);
-
-        Manteinance::all()->each(function ($manteinance) {
-            Customer::factory(2)->create(["manteinance_id" => $manteinance->id]);
+        Customer::all()->each(function ($customer) {
+            User::factory()->create([
+                'email' => fake()->unique()->safeEmail(),
+                'password' => bcrypt('password'),
+                'admin' => false,
+                'customer_id' => $customer->id,
+            ]);
         });
 
         Customer::all()->each(function ($customer) {
