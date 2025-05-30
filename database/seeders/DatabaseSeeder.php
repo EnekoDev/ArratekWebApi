@@ -31,11 +31,11 @@ class DatabaseSeeder extends Seeder
         });
 
         Customer::all()->each(function ($customer) {
-            Invoice::factory(3)->create(["customer_id" => $customer->id]);
+            Invoice::factory(1)->create(["customer_id" => $customer->id]);
         });
 
         Invoice::all()->each(function ($invoice) {
-            Ticket::factory(5)->create(["invoice_id" => $invoice->id]);
+            Ticket::factory(3)->create(["invoice_id" => $invoice->id]);
         });
     }
 }

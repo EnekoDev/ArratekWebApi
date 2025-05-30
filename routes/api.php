@@ -22,6 +22,9 @@ Route::get('/customers/{customer_id}/tickets', [TicketController::class, 'custom
 Route::apiResource("/tickets", TicketController::class)
     ->middleware(["jwt.auth", TokenCheck::class]);
 
+Route::get('/customers/{customer_id}/invoices', [InvoiceController::class, 'customerInvoices'])
+    ->middleware(["jwt.auth", TokenCheck::class]);
+
 Route::apiResource("/invoices", InvoiceController::class)
     ->middleware(["jwt.auth", TokenCheck::class]);
 
