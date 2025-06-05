@@ -15,27 +15,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $customers = Customer::factory(10)->create();
+
         User::factory()->create([
             'email' => 'eneko@arratek.com',
-            'password' => 'prueba123',
+            'password' => bcrypt('prueba123'),
             'admin' => true
         ]);
 
-        Customer::all()->each(function ($customer) {
+        $customers->each(function ($customer) {
             User::factory()->create([
                 'email' => fake()->unique()->safeEmail(),
                 'password' => bcrypt('password'),
                 'admin' => false,
                 'customer_id' => $customer->id,
             ]);
-        });
 
-        Customer::all()->each(function ($customer) {
-            Invoice::factory(1)->create(["customer_id" => $customer->id]);
-        });
+            $invoices = Invoice::factory(1)->create(['customer_id' => $customer->id]);
 
-        Invoice::all()->each(function ($invoice) {
-            Ticket::factory(3)->create(["invoice_id" => $invoice->id]);
+            $invoices->each(function ($invoice) {
+                Ticket::factory(3)->create(['invoice_id' => $invoice->id]);
+            });
         });
     }
 }
