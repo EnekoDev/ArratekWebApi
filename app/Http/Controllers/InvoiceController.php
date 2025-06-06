@@ -113,7 +113,7 @@ class InvoiceController extends Controller
             $invoice->update($validated);
 
             return response()->json(["Success" => "Factura actualizada con exito", "Factura" => $invoice], Response::HTTP_OK);
-        } catch (Exception $err) {
+        } catch (ValidationException $err) {
             return response()->json(["Error de validacion", $err->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }

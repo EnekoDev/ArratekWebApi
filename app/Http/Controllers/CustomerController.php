@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Middleware\TokenCheck;
 use App\Models\Customer;
-use Dotenv\Exception\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Routing\Controller;
 
 class CustomerController extends Controller
 {
